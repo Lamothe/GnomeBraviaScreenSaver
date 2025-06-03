@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PublishSingleFile>true</PublishSingleFile>
+  </PropertyGroup>
+
+  <Target Name="Install" AfterTargets="Publish">
+    <Message Text="Installing ..." Importance="high" />
+    <Exec Command="mkdir -p ~/.config/autostart" />
+    <Exec Command="mkdir -p ~/.local/bin" />
+    <Copy SourceFiles="$(PublishDir)GnomeBraviaScreenSaver" DestinationFiles="$(HOME)/.local/bin/gnome-bravia-screensaver" />
+    <Copy SourceFiles="gnome-bravia-screensaver.config" DestinationFolder="$(HOME)/.config" />
+    <Copy SourceFiles="gnome-bravia-screensaver.local.config" DestinationFiles="$(HOME)/.config/gnome-bravia-screensaver.config" Condition="Exists('gnome-bravia-screensaver.local.config')" />
+    <Copy SourceFiles="gnome-bravia-screensaver.desktop" DestinationFolder="$(HOME)/.config/autostart" />
+    <Message Text="Done" Importance="high" />
+  </Target>
+
+  <Target Name="Uninstall">
+    <Message Text="Uninstalling ..." Importance="high" />
+    <Exec Command="rm -f $(HOME)/.local/bin/gnome-bravia-screensaver" />
+    <Exec Command="rm -f $(HOME)/.config/gnome-bravia-screensaver.config" />
+    <Exec Command="rm -f $(HOME)/.config/autostart/gnome-bravia-screensaver.desktop" />
+    <Message Text="Done" Importance="high" />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.5" />
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
+  </ItemGroup>
+
+</Project>
