@@ -1,5 +1,4 @@
 ﻿using System.Net.Sockets;
-using ScreenSaver.DBus;
 using Tmds.DBus.Protocol;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -7,6 +6,7 @@ using Microsoft.Extensions.Logging;
 const int braviaPort = 20060;
 const string braviaPowerOffCommand = "*SCPOWR0000000000000000";
 const string braviaPowerOnCommand = "*SCPOWR0000000000000001";
+const string braviaSetInputHdmi1Command = "*SCINPT0000000100000001";
 
 const string applicationName = "gnome-bravia-screensaver";
 
@@ -25,12 +25,8 @@ var config = new ConfigurationBuilder()
     .Build();
 
 // Get values from the config given their key and their target type.
-var settings = config.GetRequiredSection("Bravia").Get<BraviaSettings>();
-
-if (settings == null)
-{
-    throw new Exception("Failed to load settings.");
-}
+var settings = config.GetRequiredSection("Bravia").Get<BraviaSettings>()
+    ?? throw new Exception("Failed to load settings.");
 
 logger.LogInformation("Bravia TV IP address is {IPAddress}", settings.IPAddress);
 
@@ -39,12 +35,26 @@ using var connection = new Connection(Address.Session!);
 await connection.ConnectAsync();
 logger.LogInformation("Connected to session bus.");
 
-// Connect to the GNOME ScreenSaver service.
-var service = new ScreenSaverService(connection, "org.gnome.ScreenSaver");
-var screenSaver = service.CreateScreenSaver("/org/gnome/ScreenSaver");
+await connection.AddMatchAsync(
+    new MatchRule
+    {
+        Type = MessageType.Signal,
+        Sender = "org.gnome.ScreenSaver",
+        Path = "/org/gnome/ScreenSaver",
+        Member = "ActiveChanged",
+        Interface = "org.gnome.ScreenSaver"
+    },
+    (m, s) => m.GetBodyReader().ReadBool(),
+    (ex, arg, rs, hs) => ((Action<Exception?, bool>)hs!).Invoke(ex, arg),
+    null,
+    async (Exception? ex, bool active) => await OnActiveChanged(ex, active),
+    true,
+    ObserverFlags.None);
 
-// Watch for events
-await screenSaver.WatchActiveChangedAsync(async (ex, active) =>
+// Wait forever.
+await Task.Delay(-1);
+
+async Task OnActiveChanged(Exception? ex, bool active)
 {
     logger.LogInformation("Active changed to {active}", active);
 
@@ -54,7 +64,15 @@ await screenSaver.WatchActiveChangedAsync(async (ex, active) =>
         using var client = new TcpClient(settings.IPAddress, braviaPort);
         using var stream = client.GetStream();
         using var writer = new StreamWriter(stream);
-        await writer.WriteLineAsync(active ? braviaPowerOffCommand : braviaPowerOnCommand);
+        if (active)
+        {
+            await writer.WriteLineAsync(braviaPowerOffCommand);
+        }
+        else
+        {
+            await writer.WriteLineAsync(braviaPowerOnCommand);
+            await writer.WriteLineAsync(braviaSetInputHdmi1Command);
+        }
         writer.Close();
         stream.Close();
         client.Close();
@@ -64,11 +82,7 @@ await screenSaver.WatchActiveChangedAsync(async (ex, active) =>
         ex = exception;
         logger.LogError("Exception: {exception}", ex.ToString());
     }
-});
-
-// Wait forever.
-await Task.Delay(-1);
-
+}
 
 class BraviaSettings
 {
