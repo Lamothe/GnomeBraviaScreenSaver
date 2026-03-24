@@ -8,10 +8,10 @@ This .NET application hooks into GNOME's Blank Screen feature and will send a re
 2. Make sure that your TV is connected to your local network and note its IP Address.
 3. Enable Simple IP Control in the Bravia menu on the TV i.e. `Network and internet` > `Home network setup` > `IP control` > `Simple IP control`. See https://pro-bravia.sony.net/develop/integrate/ssip/overview/index.html.
 4. Clone this repo then `cd` into the directory `cd GnomeBraviaScreenSaver`.
-5. Edit gnome-bravia-screensaver.config or create a gnome-bravia-screensaver.local.config and set the IP address of your TV.  You can get this from `Bravia` > `IPAddress`.
+5. Edit gnome-bravia-screensaver.config or create a gnome-bravia-screensaver.local.config and set the IP address of your TV.  You can get this from the TV's menu in `Bravia` > `IPAddress`.
 6. Build, publish and install, `dotnet publish`
 
-The app will autostart on you next GNOME session.
+The app will autostart on your next GNOME session.
 
 ## Uninstall
 
