@@ -30,6 +30,27 @@ var settings = config.GetRequiredSection("Bravia").Get<BraviaSettings>()
 
 logger.LogInformation("Bravia TV IP address is {IPAddress}", settings.IPAddress);
 
+foreach (var arg in args)
+{
+    if (arg == "on")
+    {
+        await SendBraviaPowerCommand(true);
+        return;
+    }
+    else if (arg == "off")
+    {
+        await SendBraviaPowerCommand(false);
+        return;
+    }
+    else
+    {
+        logger.LogInformation("Usage: gnome-bravia-screensaver [on|off|--help|-h]");
+        logger.LogInformation("A simple application that listens for the ActiveChanged signal from org.gnome.ScreenSaver and sends power on/off commands to a Bravia TV using Simple IP Control.");
+        logger.LogInformation("Configuration is loaded from ~/.config/gnome-bravia-screensaver.config or gnome-bravia-screensaver.local.config (for local development).");
+        return;
+    }
+}
+
 // Connect to D-Bus.
 using var connection = new Connection(Address.Session!);
 await connection.ConnectAsync();
@@ -45,7 +66,6 @@ await connection.AddMatchAsync(
         Interface = "org.gnome.ScreenSaver"
     },
     (m, s) => m.GetBodyReader().ReadBool(),
-    // FIX: Cast 'hs' to Func<..., Task> because the handler passed below is async
     (ex, arg, rs, hs) => ((Func<Exception?, bool, Task>)hs!).Invoke(ex, arg), 
     null,
     // This argument is the 'hs' (handler state). Since it uses 'async/await', it returns a Task.
@@ -62,28 +82,40 @@ async Task OnActiveChanged(Exception? ex, bool active)
 
     try
     {
-        // Send command using Simple IP Control
-        using var client = new TcpClient(settings.IPAddress, braviaPort);
-        using var stream = client.GetStream();
-        using var writer = new StreamWriter(stream);
-        if (active)
-        {
-            await writer.WriteLineAsync(braviaPowerOffCommand);
-        }
-        else
-        {
-            await writer.WriteLineAsync(braviaPowerOnCommand);
-            await writer.WriteLineAsync(braviaSetInputHdmi1Command);
-        }
-        writer.Close();
-        stream.Close();
-        client.Close();
+        await SendBraviaPowerCommand(active);
     }
     catch (Exception exception)
     {
         ex = exception;
         logger.LogError("Exception: {exception}", ex.ToString());
     }
+}
+
+async Task SendBraviaPowerCommand(bool powerOn)
+{    
+    if (powerOn)
+    {
+        await SendBraviaCommand(braviaPowerOnCommand, braviaSetInputHdmi1Command);
+    }
+    else
+    {
+        await SendBraviaCommand(braviaPowerOffCommand);
+    }
+}
+
+async Task SendBraviaCommand(params string[] commands)
+{
+    using var client = new TcpClient(settings.IPAddress, braviaPort);
+    using var stream = client.GetStream();
+    using var writer = new StreamWriter(stream);
+    foreach (var command in commands)
+    {
+        logger.LogInformation("Sending command: {command}", command);
+        await writer.WriteLineAsync(command);
+    }
+    writer.Close();
+    stream.Close();
+    client.Close();
 }
 
 class BraviaSettings
