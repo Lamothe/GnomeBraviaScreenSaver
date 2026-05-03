@@ -15,7 +15,8 @@
     <Copy SourceFiles="$(PublishDir)GnomeBraviaScreenSaver" DestinationFiles="$(HOME)/.local/bin/gnome-bravia-screensaver" />
     <Copy SourceFiles="gnome-bravia-screensaver.config" DestinationFolder="$(HOME)/.config" />
     <Copy SourceFiles="gnome-bravia-screensaver.local.config" DestinationFiles="$(HOME)/.config/gnome-bravia-screensaver.config" Condition="Exists('gnome-bravia-screensaver.local.config')" />
-    <Copy SourceFiles="gnome-bravia-screensaver.desktop" DestinationFolder="$(HOME)/.config/autostart" />
+    <Copy SourceFiles="gnome-bravia-screensaver-service.desktop" DestinationFolder="$(HOME)/.config/autostart" />
+    <Copy SourceFiles="gnome-bravia-screensaver-ui.desktop" DestinationFolder="$(HOME)/.local/share/applications" />
     <Message Text="Done" Importance="high" />
   </Target>
 
@@ -23,11 +24,13 @@
     <Message Text="Uninstalling ..." Importance="high" />
     <Exec Command="rm -f $(HOME)/.local/bin/gnome-bravia-screensaver" />
     <Exec Command="rm -f $(HOME)/.config/gnome-bravia-screensaver.config" />
-    <Exec Command="rm -f $(HOME)/.config/autostart/gnome-bravia-screensaver.desktop" />
+    <Exec Command="rm -f $(HOME)/.config/autostart/gnome-bravia-screensaver-service.desktop" />
+    <Exec Command="rm -f $(HOME)/.local/share/applications" />
     <Message Text="Done" Importance="high" />
   </Target>
 
   <ItemGroup>
+    <PackageReference Include="GirCore.Gtk-4.0" Version="0.7.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.5" />
