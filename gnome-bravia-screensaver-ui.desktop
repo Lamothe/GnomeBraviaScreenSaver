@@ -6,4 +6,5 @@ Comment=Power toggle for Sony Bravia TV
 Exec=gnome-bravia-screensaver
 Icon=video-display-symbolic
 Terminal=false
+StartupWMClass=org.lamothe.gnome-bravia-screensaver
 Categories=Utility;
