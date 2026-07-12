@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=GNOME Bravia Screensaver
+Comment=Power toggle for Sony Bravia TV
+Exec=gnome-bravia-screensaver
+Icon=video-display-symbolic
+Terminal=false
+Categories=Utility;

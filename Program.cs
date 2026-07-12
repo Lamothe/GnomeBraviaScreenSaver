@@ -105,6 +105,9 @@ application.OnActivate += (sender, e) =>
         return;
     }
 
+    // Set dark theme to match GNOME desktop
+    Gtk.Settings.GetDefault()!.GtkApplicationPreferDarkTheme = true;
+
     // Otherwise, create the main window for the first time
     mainWindow = ApplicationWindow.New(app);
     mainWindow.Title = "GNOME Bravia Screensaver";

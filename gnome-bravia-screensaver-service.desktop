@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=GNOME Bravia Screensaver Service
+Comment=Turn on and off your Sony Bravia TV using Simple IP Control
+Exec=gnome-bravia-screensaver --service
+Icon=org.gnome.Terminal
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=GNOME;
