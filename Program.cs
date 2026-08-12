@@ -129,14 +129,14 @@ application.OnActivate += (sender, e) =>
     btnOn.Label = "Turn On";
     btnOn.WidthRequest = 90;
     btnOn.AddCssClass("suggested-action");
-    btnOn.OnClicked += async (_, _) => await SendBraviaPowerCommand(true);
+    btnOn.OnClicked += async (_, _) => await SendBraviaPowerCommandWithErrorHandling(true);
 
     // "Turn Off" Button (Native GNOME Red)
     var btnOff = Button.New();
     btnOff.Label = "Turn Off";
     btnOff.WidthRequest = 90;
     btnOff.AddCssClass("destructive-action");
-    btnOff.OnClicked += async (_, _) => await SendBraviaPowerCommand(false);
+    btnOff.OnClicked += async (_, _) => await SendBraviaPowerCommandWithErrorHandling(false);
 
     // Add buttons to the box, and the box to the window
     box.Append(btnOn);
@@ -183,6 +183,29 @@ async Task SendBraviaPowerCommand(bool powerOn)
     {
         await SendBraviaCommand(braviaPowerOffCommand);
     }
+}
+
+async Task SendBraviaPowerCommandWithErrorHandling(bool powerOn)
+{
+    try
+    {
+        await SendBraviaPowerCommand(powerOn);
+    }
+    catch (Exception exception)
+    {
+        logger.LogError("Failed to send command: {exception}", exception.ToString());
+        ShowError(
+            $"Failed to {(powerOn ? "turn on" : "turn off")} the TV.",
+            $"Could not connect to {settings.IPAddress}:{braviaPort}. {exception.Message}");
+    }
+}
+
+void ShowError(string message, string detail)
+{
+    var dialog = new AlertDialog();
+    dialog.Message = message;
+    dialog.Detail = detail;
+    dialog.Show(mainWindow);
 }
 
 async Task SendBraviaCommand(params string[] commands)
