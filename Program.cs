@@ -1,4 +1,4 @@
-﻿using System.Net.Sockets;
+using System.Net.Sockets;
 using Tmds.DBus.Protocol;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -149,8 +149,14 @@ application.OnActivate += (sender, e) =>
 // Run the application loop
 return application.RunWithSynchronizationContext(null);
 
-async Task OnActiveChanged(Exception? ex, bool active)
+async Task OnActiveChanged(Exception? busError, bool active)
 {
+    if (busError is not null)
+    {
+        logger.LogError(busError, "D-Bus error receiving ActiveChanged signal");
+        return;
+    }
+
     logger.LogInformation("Active changed to {active}", active);
 
     try
@@ -166,10 +172,9 @@ async Task OnActiveChanged(Exception? ex, bool active)
             await SendBraviaPowerCommand(newTvState);
         }
     }
-    catch (Exception exception)
+    catch (Exception ex)
     {
-        ex = exception;
-        logger.LogError("Exception: {exception}", ex.ToString());
+        logger.LogError(ex, "Failed to send Bravia command for active={active}", active);
     }
 }
 

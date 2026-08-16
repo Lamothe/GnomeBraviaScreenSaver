@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -25,7 +25,7 @@
     <Exec Command="rm -f $(HOME)/.local/bin/gnome-bravia-screensaver" />
     <Exec Command="rm -f $(HOME)/.config/gnome-bravia-screensaver.config" />
     <Exec Command="rm -f $(HOME)/.config/autostart/gnome-bravia-screensaver-service.desktop" />
-    <Exec Command="rm -f $(HOME)/.local/share/applications" />
+    <Exec Command="rm -f $(HOME)/.local/share/applications/gnome-bravia-screensaver-ui.desktop" />
     <Message Text="Done" Importance="high" />
   </Target>
 
