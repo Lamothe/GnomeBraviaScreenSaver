@@ -10,32 +10,36 @@
 
   <Target Name="Install" AfterTargets="Publish">
     <Message Text="Installing ..." Importance="high" />
-    <Exec Command="mkdir -p ~/.config/autostart" />
-    <Exec Command="mkdir -p ~/.local/bin" />
+    <Exec Command="mkdir -p &quot;$(HOME)/.config/autostart&quot; &quot;$(HOME)/.local/bin&quot; &quot;$(HOME)/.local/share/applications&quot; &quot;$(HOME)/.local/share/gnome-shell/extensions&quot;" />
+    <Exec Command="rm -f &quot;$(HOME)/.local/share/gnome-shell/extensions/bravia-quick-toggle@lamothe.shell-extension.zip&quot;" />
     <Copy SourceFiles="$(PublishDir)GnomeBraviaScreenSaver" DestinationFiles="$(HOME)/.local/bin/gnome-bravia-screensaver" />
+    <Exec Command="chmod +x &quot;$(HOME)/.local/bin/gnome-bravia-screensaver&quot;" />
     <Copy SourceFiles="gnome-bravia-screensaver.config" DestinationFolder="$(HOME)/.config" />
     <Copy SourceFiles="gnome-bravia-screensaver.local.config" DestinationFiles="$(HOME)/.config/gnome-bravia-screensaver.config" Condition="Exists('gnome-bravia-screensaver.local.config')" />
     <Copy SourceFiles="gnome-bravia-screensaver-service.desktop" DestinationFolder="$(HOME)/.config/autostart" />
-    <Copy SourceFiles="gnome-bravia-screensaver-ui.desktop" DestinationFolder="$(HOME)/.local/share/applications" />
-    <Message Text="Done" Importance="high" />
+    <Exec Command="cd gnome-bravia-quick-toggle &amp;&amp; zip -q -j &quot;$(HOME)/.local/share/gnome-shell/extensions/bravia-quick-toggle@lamothe.shell-extension.zip&quot; metadata.json extension.js" />
+    <Exec Command="rm -rf &quot;$(HOME)/.local/share/gnome-shell/extensions/bravia-quick-toggle@lamothe&quot;" />
+    <Exec Command="gnome-extensions install --force &quot;$(HOME)/.local/share/gnome-shell/extensions/bravia-quick-toggle@lamothe.shell-extension.zip&quot;" />
+    <Exec Command="gnome-extensions enable bravia-quick-toggle@lamothe || true" />
+    <Message Text="Done. Log out and back in before enabling the GNOME Shell extension if it was not already installed." Importance="high" />
   </Target>
 
   <Target Name="Uninstall">
     <Message Text="Uninstalling ..." Importance="high" />
-    <Exec Command="rm -f $(HOME)/.local/bin/gnome-bravia-screensaver" />
-    <Exec Command="rm -f $(HOME)/.config/gnome-bravia-screensaver.config" />
-    <Exec Command="rm -f $(HOME)/.config/autostart/gnome-bravia-screensaver-service.desktop" />
-    <Exec Command="rm -f $(HOME)/.local/share/applications/gnome-bravia-screensaver-ui.desktop" />
+    <Exec Command="rm -f &quot;$(HOME)/.local/bin/gnome-bravia-screensaver&quot;" />
+    <Exec Command="rm -f &quot;$(HOME)/.config/gnome-bravia-screensaver.config&quot;" />
+    <Exec Command="rm -f &quot;$(HOME)/.config/autostart/gnome-bravia-screensaver-service.desktop&quot;" />
+    <Exec Command="gnome-extensions disable bravia-quick-toggle@lamothe 2&gt;/dev/null || true" />
+    <Exec Command="rm -f &quot;$(HOME)/.local/share/gnome-shell/extensions/bravia-quick-toggle@lamothe.shell-extension.zip&quot;" />
+    <Exec Command="rm -rf &quot;$(HOME)/.local/share/gnome-shell/extensions/bravia-quick-toggle@lamothe&quot;" />
     <Message Text="Done" Importance="high" />
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="GirCore.Gtk-4.0" Version="0.7.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.11" />
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.3" />
   </ItemGroup>
 

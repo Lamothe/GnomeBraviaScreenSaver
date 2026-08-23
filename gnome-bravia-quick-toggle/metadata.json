@@ -1,0 +1,9 @@
+{
+  "uuid": "bravia-quick-toggle@lamothe",
+  "name": "Bravia Quick Toggle",
+  "description": "Control a Sony Bravia TV from GNOME Quick Settings",
+  "version": 2,
+  "version-name": "1.1.0",
+  "shell-version": ["50"],
+  "session-modes": ["user"]
+}

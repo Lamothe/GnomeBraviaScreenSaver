@@ -33,14 +33,43 @@ This .NET application hooks into GNOME's Blank Screen feature and sends power on
    ```
    dotnet publish
    ```
-   This copies the binary to `~/.local/bin/gnome-bravia-screensaver`, installs the config to `~/.config/gnome-bravia-screensaver.config`, and sets up the autostart entry.
+   This copies the binary to `~/.local/bin/gnome-bravia-screensaver`, installs the config to `~/.config/gnome-bravia-screensaver.config`, sets up the autostart entry, creates the Quick Settings extension bundle, and installs that bundle with `gnome-extensions`.
 
 The background service will autostart on your next GNOME session.
+
+The application reads its deployed configuration from
+`~/.config/gnome-bravia-screensaver.config`. The repository-local
+`gnome-bravia-screensaver.local.config` is ignored and is used only to seed or
+update that installed configuration during development.
+
+## Quick Settings
+
+The installer installs the `Bravia Quick Toggle` GNOME Shell extension as a
+GNOME extension bundle. After the first install, log out and back in so GNOME
+Shell discovers it, then enable it:
+
+```bash
+gnome-extensions enable bravia-quick-toggle@lamothe
+```
+
+GNOME Shell on Wayland cannot be restarted with `Alt`+`F2`, `r`; a new session
+is required.
+
+When updating an already-enabled extension, disable and re-enable it so GNOME
+Shell loads the new JavaScript:
+
+```bash
+gnome-extensions disable bravia-quick-toggle@lamothe
+gnome-extensions enable bravia-quick-toggle@lamothe
+```
+
+The toggle queries the TV for its current power state and uses the installed
+`gnome-bravia-screensaver` command for power changes. It targets GNOME Shell 50.
 
 ## CLI Usage
 
 ```
-gnome-bravia-screensaver [on|off|--service|--help|-h]
+gnome-bravia-screensaver [on|off|status|--service|--help|-h]
 ```
 
 | Argument | Description |
@@ -48,6 +77,7 @@ gnome-bravia-screensaver [on|off|--service|--help|-h]
 | *(none)* | Opens the GTK control dialog |
 | `on` | Turns the TV on |
 | `off` | Turns the TV off |
+| `status` | Prints `on` or `off` after querying the TV |
 | `--service` | Runs the D-Bus listener (started automatically by autostart) |
 
 ## Uninstall
